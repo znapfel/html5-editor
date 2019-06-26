@@ -3,6 +3,7 @@
 let canvas;
 let ctx;
 let dirtyIndices = [];
+
 // Width and Height of Canvas.
 // Have to be even multiples of number of rows and colums
 
@@ -19,10 +20,30 @@ const BOX_SIDE_LENGTH = WIDTH / NUM_ROWS; //px
 
 
 // Default color and canvas data array
-let currentColor = '#AAEEBB';
+// Sprite Editor
+
+let colorPalette = ['fafafa', 'd4d4d4', '9d9d9d', '4b4b4b', 'f9d381', 'eaaf4d', 'f9938a', 'e75952', '9ad1f9', '58aeee', '58aeee', '44c55b', 'c3a7e1', '9569c8', 'bab5aa', '948e82'];
+let currentColor = '#eaaf4d';
+let currentColorDiv;
 let defaultColor = '#FFFFFF';
 let canvasData = new Array(NUM_ROWS * NUM_COLS).fill(defaultColor);
 
+
+// Create Color Palette
+function populatePalette() {
+    let palette = colorPalette;
+    let paletteArea = document.querySelector('.sprite--palette');
+    palette.forEach((color, index) => {
+        let html = `
+            <div class="sprite--color-swatch" id="${color}_${index}" data-hex="#${color}" style="background-color: #${color}">
+            </div>
+        `;
+        paletteArea.innerHTML += html;
+        //html.setAttribute("style", `background-color: ${color}`);
+    });
+    currentColorDiv = document.querySelector(`[data-hex="${currentColor}"]`);
+    currentColorDiv.classList.add('activeColor');
+}
 // Converts an grid arra index on the editor to an x and y coordinate
 function indexToRowAndColumn(index) {
     let row = Math.floor(index / NUM_ROWS);
@@ -94,6 +115,19 @@ function redrawGrid(row, column) {
     ctx.closePath();
 }
 
+// Color Change Handlers 
+function setColor(swatch) {
+    currentColor = swatch.dataset.hex;
+    currentColorDiv = swatch;
+    swatch.classList.add('activeColor');
+}
+
+function switchColor(e) {
+    const classes = e.target.classList;
+    if (!classes.contains('sprite--color-swatch') || classes.contains('activeColor')) { return false; }
+    currentColorDiv.classList.remove('activeColor');
+    setColor(e.target);
+}
 // Iterates through each x,y coord of the canvas and set's it to the default state by adding it to the dirty index;
 function resetCanvas() {
     for (let i = 0; i < canvasData.length; i++) {
@@ -106,7 +140,7 @@ function resetCanvas() {
 
 // Handles a single click within the sprite editor's canvas.
 function handleClick(e){
-    console.log(e);
+    //console.log(e);
     let x = e.offsetX;
     let y= e.offsetY;
     if ( (x > WIDTH || x < 0) || y > HEIGHT || y < 0) { 
@@ -118,6 +152,10 @@ function handleClick(e){
 // Event Listeners
 function addListeners() {
     canvas.addEventListener('click', handleClick);
+    const palette = document.querySelector('.sprite--palette');
+    palette.addEventListener('click', switchColor);
+    //const colorSwatches = document.querySelectorAll('.sprite--color-swatch');
+    //colorSwatches.forEach(swatch => swatch.addEventListener('click', switchColor));
 }
 
 // Iterates through the dirty indices and updates each x, y coord on the canvas with it's new color
@@ -144,7 +182,10 @@ function getCanvasAndContext() {
 function initEditor() {
     getCanvasAndContext();
     resetCanvas();
+    
+    populatePalette();
     addListeners();
+    
     
 }
 
