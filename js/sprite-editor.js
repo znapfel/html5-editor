@@ -17,7 +17,12 @@ const NUM_COLS = 16;
 // TODO Currently only makes square sprites
 const BOX_SIDE_LENGTH = WIDTH / NUM_ROWS; //px
 
-
+// Mouse Flags
+let mouseDown = false;
+let mouseDownAt = null;
+let clickAndDrag = true;
+// Delay in MS before click and drag events are handled
+let DRAG_DELAY_MS = 50; 
 
 // Default color and canvas data array
 // Sprite Editor
@@ -66,10 +71,14 @@ function setData(index, color) {
     if (dirtyIndices.includes(index)) { return false; }
     // If it isn't, check to see that the index's color is different than the current color and recolor accordingly.
     let currentColor = canvasData[index];
-    if ( color !== currentColor ) {
-        canvasData[index] = color;
+    if (!clickAndDrag) {
+        if ( color !== currentColor ) {
+            canvasData[index] = color;
+        } else {
+            canvasData[index] = defaultColor;
+        }
     } else {
-        canvasData[index] = defaultColor;
+        canvasData[index] = color;
     }
     // push the new color for that index into the dirty indices array to be redrawn.
     dirtyIndices.push(index);
@@ -143,10 +152,46 @@ function handleClick(e){
     //console.log(e);
     let x = e.offsetX;
     let y= e.offsetY;
+    // TURN BOUNDARY CHECK INTO FUNCTION?
     if ( (x > WIDTH || x < 0) || y > HEIGHT || y < 0) { 
         return false;
     }
     setData(coordinatesToIndex(x, y), currentColor);
+}
+
+function handleMouseDown(e) {
+    mouseDown = true;
+    mouseDownAt = Date.now();
+}
+
+function handleMouseMove(e) {
+    if (!mouseDown) {
+        return false;
+    }
+    if ( (Date.now() - mouseDownAt) > DRAG_DELAY_MS ) {
+        let x = e.offsetX;
+        let y = e.offsetY;
+        clickAndDrag = true;
+        if ( (x > WIDTH || x < 0) || y > HEIGHT || y < 0) { 
+            return false;
+        } else {
+            setData(coordinatesToIndex(x, y), currentColor);
+        }
+    }
+}
+function handleMouseUp(e) {
+    if (clickAndDrag) {
+        let x = e.offsetX;
+        let y = e.offsetY;
+
+        if ( (x >= WIDTH || x <= 0) || (y >= HEIGHT || y <= 0) ) {
+            return false;
+        }
+        setData(coordinatesToIndex(x, y), currentColor);
+    }
+    mouseDown = false;
+    mouseDownAt = null;
+    clickAndDrag = false;
 }
 
 // Event Listeners
@@ -154,8 +199,11 @@ function addListeners() {
     canvas.addEventListener('click', handleClick);
     const palette = document.querySelector('.sprite--palette');
     palette.addEventListener('click', switchColor);
-    //const colorSwatches = document.querySelectorAll('.sprite--color-swatch');
-    //colorSwatches.forEach(swatch => swatch.addEventListener('click', switchColor));
+
+    // Mouse Listeners
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mouseup', handleMouseUp);
 }
 
 // Iterates through the dirty indices and updates each x, y coord on the canvas with it's new color
