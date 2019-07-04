@@ -1,6 +1,7 @@
 
 // Global reference to canvas and it's context
 let canvas;
+let subCanvasID = 0;
 let ctx;
 let dirtyIndices = [];
 
@@ -106,6 +107,13 @@ function colorBox(box, color) {
     redrawGrid(row, column);
 }
 
+function getUserImageParameters(e) {
+    e.preventDefault();
+    let imageWidth = document.querySelector('select#pxWidth').value;
+    let transparency = true;
+    let backgroundColor = "#000000";
+    grabCanvas(imageWidth, transparency, backgroundColor);
+}
 // Draw the grid
 function redrawGrid(row, column) {
     ctx.lineWidth = 0.5;
@@ -137,6 +145,47 @@ function switchColor(e) {
     currentColorDiv.classList.remove('activeColor');
     setColor(e.target);
 }
+
+// Save Image
+function grabCanvas(imageWidth, transparency, backgroundColor) {
+    subCanvasID++;
+    let savedImage = document.createElement('canvas');
+    savedImage.height = imageWidth;
+    savedImage.width = imageWidth;
+    savedImage.classList.add('editor-output');
+    savedImage.id = 'image'+subCanvasID;
+    let savedImageContext = savedImage.getContext('2d');
+    const cellDimensions = Math.ceil(imageWidth / NUM_COLS);
+    let tray = document.getElementById('imageTray');
+    tray.prepend(savedImage);
+    tray.scrollLeft = 0;
+
+    function colorScaledBox(box, color) {
+        const { row, column } = box;
+        if (!isValidColumn(column) || !isValidRow(row) ) { return false; }
+        savedImageContext.fillStyle = color || currentColor;
+        savedImageContext.clearRect(column * cellDimensions, row * cellDimensions, cellDimensions, cellDimensions);
+        savedImageContext.beginPath();
+        savedImageContext.fillRect(column * cellDimensions, row * cellDimensions, cellDimensions, cellDimensions);
+        savedImageContext.closePath();
+    }
+
+    //
+    for (let i = 0; i < canvasData.length; i++) {
+        let row = Math.floor(i / NUM_ROWS);
+        let column = i % NUM_COLS;
+        let color = canvasData[i];
+        if (transparency) {
+            if (color === defaultColor) {
+                colorScaledBox({row, column}, 'rgba(255,255,255,0');
+            } else {
+                colorScaledBox({row, column}, color);
+            }
+        }
+    }
+}
+
+
 // Iterates through each x,y coord of the canvas and set's it to the default state by adding it to the dirty index;
 function resetCanvas() {
     for (let i = 0; i < canvasData.length; i++) {
@@ -194,6 +243,8 @@ function handleMouseUp(e) {
     clickAndDrag = false;
 }
 
+
+
 // Event Listeners
 function addListeners() {
     canvas.addEventListener('click', handleClick);
@@ -204,6 +255,9 @@ function addListeners() {
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mousedown', handleMouseDown);
     canvas.addEventListener('mouseup', handleMouseUp);
+
+    // Make these more dynamic
+    document.getElementById('saveSprite').addEventListener('click', getUserImageParameters);
 }
 
 // Iterates through the dirty indices and updates each x, y coord on the canvas with it's new color
