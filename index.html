@@ -18,17 +18,56 @@
 </head>
 
 <body>
+  <header>
+    <nav>
+      <ul>
+        <li><input class="header--editor-toggle" data-toggle="sprite-editor" name="sprite-editor" type="checkbox"><label for="sprite-editor">Sprites</label></li>
+        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
+        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
+        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
+        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
+      </ul>
+    </nav>
+  </header>
   <div class="editor-app">
-    <section class="sprite-editor">
+    <section class="sprite">
       <div class="sprite--bar">
         <h3>Sprite Editor</h3>
         <p>X</p>
       </div>
       <div class="sprite--window">
-        <aside class="sprite--palette">   
-                  
-        </aside>
-        <canvas id='editor' class="sprite--canvas" width="640" height="640"></canvas>
+        <aside class="sprite--palette"></aside>
+        <div class="sprite--editor">
+          <div class="canvas-wrapper">
+            <canvas id='editor' class="sprite--canvas" width="640" height="640"></canvas>
+          </div>
+        
+        </div>
+        
+      </div>
+      <div class="sprite--controls">
+          <div class="sprite--editor-controls">
+            <button id="saveSprite">Save</button>
+          </div>
+          <div class="sprite--editor-controls">
+            <input id="transparent" type="checkbox" checked>
+            <label>Transparent</labe>
+          </div>
+          <div class="sprite--editor-controls">
+            <select id="pxWidth" name="Sprite Width">
+              <option value="16">16x16</option>
+              <option value="32">32x32</option>
+              <option value="64">64x64</option>
+              <option value="128">128x128</option>
+            </select>
+          </div>          
+        </div>
+        <div class="sprite--editor-previews" id="imageTray"></div>
+    </section>
+    <section class="placeholder-editor">
+      <div class=placeholder--bar>
+        <h3>Sprite Editor</h3>
+        <p>X</p>
       </div>
     </section>
 

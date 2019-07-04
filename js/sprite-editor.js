@@ -8,7 +8,7 @@ let dirtyIndices = [];
 // Have to be even multiples of number of rows and colums
 
 const WIDTH = 256; //px
-const HEIGHT = 256 //px
+const HEIGHT = 256; //px
 
 // -> Number of columns and rows have to be even multiples of 16
 const NUM_ROWS = 16;
