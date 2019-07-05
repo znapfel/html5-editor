@@ -1,13 +1,18 @@
 
 // Global reference to canvas and it's context
 let canvas;
+let subCanvasID = 0;
 let ctx;
 let dirtyIndices = [];
+
+// used to load images from local storage and display them
+let loadedImages;
+
 // Width and Height of Canvas.
 // Have to be even multiples of number of rows and colums
 
 const WIDTH = 256; //px
-const HEIGHT = 256 //px
+const HEIGHT = 256; //px
 
 // -> Number of columns and rows have to be even multiples of 16
 const NUM_ROWS = 16;
@@ -16,13 +21,38 @@ const NUM_COLS = 16;
 // TODO Currently only makes square sprites
 const BOX_SIDE_LENGTH = WIDTH / NUM_ROWS; //px
 
-
+// Mouse Flags
+let mouseDown = false;
+let mouseDownAt = null;
+let clickAndDrag = true;
+// Delay in MS before click and drag events are handled
+let DRAG_DELAY_MS = 50; 
 
 // Default color and canvas data array
-let currentColor = '#AAEEBB';
+// Sprite Editor
+
+let colorPalette = ['fafafa', 'd4d4d4', '9d9d9d', '4b4b4b', 'f9d381', 'eaaf4d', 'f9938a', 'e75952', '9ad1f9', '58aeee', '58aeee', '44c55b', 'c3a7e1', '9569c8', 'bab5aa', '948e82'];
+let currentColor = '#eaaf4d';
+let currentColorDiv;
 let defaultColor = '#FFFFFF';
 let canvasData = new Array(NUM_ROWS * NUM_COLS).fill(defaultColor);
 
+
+// Create Color Palette
+function populatePalette() {
+    let palette = colorPalette;
+    let paletteArea = document.querySelector('.sprite--palette');
+    palette.forEach((color, index) => {
+        let html = `
+            <div class="sprite--color-swatch" id="${color}_${index}" data-hex="#${color}" style="background-color: #${color}">
+            </div>
+        `;
+        paletteArea.innerHTML += html;
+        //html.setAttribute("style", `background-color: ${color}`);
+    });
+    currentColorDiv = document.querySelector(`[data-hex="${currentColor}"]`);
+    currentColorDiv.classList.add('activeColor');
+}
 // Converts an grid arra index on the editor to an x and y coordinate
 function indexToRowAndColumn(index) {
     let row = Math.floor(index / NUM_ROWS);
@@ -45,10 +75,14 @@ function setData(index, color) {
     if (dirtyIndices.includes(index)) { return false; }
     // If it isn't, check to see that the index's color is different than the current color and recolor accordingly.
     let currentColor = canvasData[index];
-    if ( color !== currentColor ) {
-        canvasData[index] = color;
+    if (!clickAndDrag) {
+        if ( color !== currentColor ) {
+            canvasData[index] = color;
+        } else {
+            canvasData[index] = defaultColor;
+        }
     } else {
-        canvasData[index] = defaultColor;
+        canvasData[index] = color;
     }
     // push the new color for that index into the dirty indices array to be redrawn.
     dirtyIndices.push(index);
@@ -76,6 +110,15 @@ function colorBox(box, color) {
     redrawGrid(row, column);
 }
 
+function getUserImageParameters(e) {
+    e.preventDefault();
+    let imageWidth = document.querySelector('select#pxWidth').value;
+    let transparency = true;
+    let backgroundColor = "#000000";
+    let imageTray = document.getElementById('imageTray');
+    imageTray.prepend(grabCanvas(imageWidth, transparency, backgroundColor, canvasData));
+    imageTray.scrollLeft = 0;
+}
 // Draw the grid
 function redrawGrid(row, column) {
     ctx.lineWidth = 0.5;
@@ -94,6 +137,59 @@ function redrawGrid(row, column) {
     ctx.closePath();
 }
 
+// Color Change Handlers 
+function setColor(swatch) {
+    currentColor = swatch.dataset.hex;
+    currentColorDiv = swatch;
+    swatch.classList.add('activeColor');
+}
+
+function switchColor(e) {
+    const classes = e.target.classList;
+    if (!classes.contains('sprite--color-swatch') || classes.contains('activeColor')) { return false; }
+    currentColorDiv.classList.remove('activeColor');
+    setColor(e.target);
+}
+
+// Save Image
+function grabCanvas(imageWidth, transparency, backgroundColor, data) {
+    subCanvasID++;
+    let savedImage = document.createElement('canvas');
+    savedImage.height = imageWidth;
+    savedImage.width = imageWidth;
+    savedImage.classList.add('editor-output');
+    savedImage.id = 'image'+subCanvasID;
+    let savedImageContext = savedImage.getContext('2d');
+    const cellDimensions = Math.ceil(imageWidth / NUM_COLS);
+    
+
+    function colorScaledBox(box, color) {
+        const { row, column } = box;
+        if (!isValidColumn(column) || !isValidRow(row) ) { return false; }
+        savedImageContext.fillStyle = color || currentColor;
+        savedImageContext.clearRect(column * cellDimensions, row * cellDimensions, cellDimensions, cellDimensions);
+        savedImageContext.beginPath();
+        savedImageContext.fillRect(column * cellDimensions, row * cellDimensions, cellDimensions, cellDimensions);
+        savedImageContext.closePath();
+    }
+
+    //
+    for (let i = 0; i < data.length; i++) {
+        let row = Math.floor(i / NUM_ROWS);
+        let column = i % NUM_COLS;
+        let color = canvasData[i];
+        if (transparency) {
+            if (color === defaultColor) {
+                colorScaledBox({row, column}, 'rgba(255,255,255,0');
+            } else {
+                colorScaledBox({row, column}, color);
+            }
+        }
+    }
+    return savedImage;
+}
+
+
 // Iterates through each x,y coord of the canvas and set's it to the default state by adding it to the dirty index;
 function resetCanvas() {
     for (let i = 0; i < canvasData.length; i++) {
@@ -106,18 +202,112 @@ function resetCanvas() {
 
 // Handles a single click within the sprite editor's canvas.
 function handleClick(e){
-    console.log(e);
+    //console.log(e);
     let x = e.offsetX;
     let y= e.offsetY;
+    // TURN BOUNDARY CHECK INTO FUNCTION?
     if ( (x > WIDTH || x < 0) || y > HEIGHT || y < 0) { 
         return false;
     }
     setData(coordinatesToIndex(x, y), currentColor);
 }
 
+function handleMouseDown(e) {
+    mouseDown = true;
+    mouseDownAt = Date.now();
+}
+
+function handleMouseMove(e) {
+    if (!mouseDown) {
+        return false;
+    }
+    if ( (Date.now() - mouseDownAt) > DRAG_DELAY_MS ) {
+        let x = e.offsetX;
+        let y = e.offsetY;
+        clickAndDrag = true;
+        if ( (x > WIDTH || x < 0) || y > HEIGHT || y < 0) { 
+            return false;
+        } else {
+            setData(coordinatesToIndex(x, y), currentColor);
+        }
+    }
+}
+function handleMouseUp(e) {
+    if (clickAndDrag) {
+        let x = e.offsetX;
+        let y = e.offsetY;
+
+        if ( (x >= WIDTH || x <= 0) || (y >= HEIGHT || y <= 0) ) {
+            return false;
+        }
+        setData(coordinatesToIndex(x, y), currentColor);
+    }
+    mouseDown = false;
+    mouseDownAt = null;
+    clickAndDrag = false;
+}
+
+function loadImages(e) {
+    let saved = localStorage.getItem('sprites');
+    if (!saved) { return false; }
+    loadedImages = JSON.parse(saved);
+
+    let savedImages = document.getElementById('savedImages');
+    savedImages.innerHTML = ''; // delete saved images
+    loadedImages.images.map( (image, index) => {
+        let imageContainer = document.createElement('div');
+        imageContainer.id  = 'saved-image-' + index;
+        imageContainer.classList.add('image-container');
+        let closeBox = document.createElement('div');
+        closeBox.id = 'close-' + index;
+        closeBox.classList.add('close');
+        imageContainer.appendChild(closeBox);
+        let canvas = grabCanvas(128, true, null, image);
+        canvas.id = 'close-' + index;
+        imageContainer.appendChild(canvas);
+        savedImages.prepend(imageContainer);
+    });
+    savedImages.addEventListener('click', handleSavedPaneClick);
+    savedImages.style.display = 'flex';
+}
+
+function saveImage(e) {
+    let saved = localStorage.getItem('sprites');
+    if  (!saved) {
+        // Create a save object to copy canvas data to
+        let saveObject = JSON.stringify({
+            images: [canvasData]
+        });
+        localStorage.setItem('sprites', saveObject);
+    } else {
+        // retrieve the images from the existing sprites object in local storage and add the image being saved to it.
+        saved = JSON.parse(saved);
+        let newImages = saved.images.slice();
+        newImages.push(canvasData);
+        let saveObject = Object.assign({}, saved, { images: newImages });
+        localStorage.setItem('sprites', JSON.stringify(saveObject));
+
+    }
+    loadImages();
+}
+
 // Event Listeners
 function addListeners() {
     canvas.addEventListener('click', handleClick);
+    const palette = document.querySelector('.sprite--palette');
+    palette.addEventListener('click', switchColor);
+
+    // Mouse Listeners
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mouseup', handleMouseUp);
+
+    // Make these more dynamic
+    document.getElementById('saveSprite').addEventListener('click', getUserImageParameters);
+    
+    // Probably won't be needed in final
+    document.getElementById('saveImage').addEventListener('click', saveImage);
+    document.getElementById('loadImages').addEventListener('click', loadImages);
 }
 
 // Iterates through the dirty indices and updates each x, y coord on the canvas with it's new color
@@ -137,14 +327,17 @@ function getCanvasAndContext() {
     ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     canvas.width = NUM_COLS * BOX_SIDE_LENGTH + 1; // +1 to display border;
-    canvas.height = NUM_ROWS * BOX_SIDE_LENGTH +1;
+    canvas.height = NUM_ROWS * BOX_SIDE_LENGTH + 1;
 }
 
 // Initializes the dditor
 function initEditor() {
     getCanvasAndContext();
     resetCanvas();
+    
+    populatePalette();
     addListeners();
+    
     
 }
 

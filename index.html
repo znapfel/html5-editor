@@ -18,36 +18,63 @@
 </head>
 
 <body>
-  <div class="editor-app">
-    <section class="sprite-editor">
+  <header>
+    <nav>
+      <ul>
+        <li><input class="header--editor-toggle" data-toggle="sprite-editor" name="sprite-editor" type="checkbox"><label for="sprite-editor">Sprites</label></li>
+        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
+        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
+        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
+        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="editor-app">
+    <div id="savedImages"></div>
+    <section class="sprite">
       <div class="sprite--bar">
         <h3>Sprite Editor</h3>
         <p>X</p>
       </div>
       <div class="sprite--window">
-        <aside class="sprite--color-picker">   
-            <div class="sprite--color-swatch"data-color="fafafa" style="background-color: #fafafa;"></div>
-            <div class="sprite--color-swatch"data-color="d4d4d4" style="background-color: #d4d4d4;"></div>
-            <div class="sprite--color-swatch"data-color="9d9d9d" style="background-color: #9d9d9d;"></div>
-            <div class="sprite--color-swatch"data-color="4b4b4b" style="background-color: #4b4b4b;"></div>
-            <div class="sprite--color-swatch"data-color="f9d381" style="background-color: #f9d381;"></div>
-            <div class="sprite--color-swatch"data-color="eaaf4d" style="background-color: #eaaf4d;"></div>
-            <div class="sprite--color-swatch"data-color="f9938a" style="background-color: #f9938a;"></div>
-            <div class="sprite--color-swatch"data-color="e75952" style="background-color: #e75952;"></div>
-            <div class="sprite--color-swatch"data-color="9ad1f9" style="background-color: #9ad1f9;"></div>
-            <div class="sprite--color-swatch"data-color="58aeee" style="background-color: #58aeee;"></div>
-            <div class="sprite--color-swatch"data-color="58aeee" style="background-color: #58aeee;"></div>
-            <div class="sprite--color-swatch"data-color="44c55b" style="background-color: #44c55b;"></div>
-            <div class="sprite--color-swatch"data-color="c3a7e1" style="background-color: #c3a7e1;"></div>
-            <div class="sprite--color-swatch"data-color="9569c8" style="background-color: #9569c8;"></div>
-            <div class="sprite--color-swatch"data-color="bab5aa" style="background-color: #bab5aa;"></div>
-            <div class="sprite--color-swatch"data-color="948e82" style="background-color: #948e82;"></div>          
-        </aside>
-        <canvas id='editor' class="sprite--canvas" width="640" height="640"></canvas>
+        <aside class="sprite--palette"></aside>
+        <div class="sprite--editor">
+          <div class="canvas-wrapper">
+            <canvas id='editor' class="sprite--canvas" width="640" height="640"></canvas>
+          </div>
+        
+        </div>
+        
+      </div>
+      <div class="sprite--controls">
+          <div class="sprite--editor-controls">
+            <button id="saveSprite">Save</button>
+            <button id="saveImage">Save To Local</button>
+            <button id="loadImages">Load from Local</button>
+          </div>
+          <div class="sprite--editor-controls">
+            <input id="transparent" type="checkbox" checked>
+            <label>Transparent</labe>
+          </div>
+          <div class="sprite--editor-controls">
+            <select id="pxWidth" name="Sprite Width">
+              <option value="16">16x16</option>
+              <option value="32" selected>32x32</option>
+              <option value="64">64x64</option>
+              <option value="128" >128x128</option>
+            </select>
+          </div>          
+        </div>
+        <div class="sprite--editor-previews" id="imageTray"></div>
+    </section>
+    <section class="placeholder-editor">
+      <div class=placeholder--bar>
+        <h3>Sprite Editor</h3>
+        <p>X</p>
       </div>
     </section>
 
-  </div>
+  </main>
   <script src="js/sprite-editor.js"></script>
 </body>
 
