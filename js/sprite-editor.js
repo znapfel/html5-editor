@@ -5,6 +5,9 @@ let subCanvasID = 0;
 let ctx;
 let dirtyIndices = [];
 
+// used to load images from local storage and display them
+let loadedImages;
+
 // Width and Height of Canvas.
 // Have to be even multiples of number of rows and colums
 
@@ -112,7 +115,9 @@ function getUserImageParameters(e) {
     let imageWidth = document.querySelector('select#pxWidth').value;
     let transparency = true;
     let backgroundColor = "#000000";
-    grabCanvas(imageWidth, transparency, backgroundColor);
+    let imageTray = document.getElementById('imageTray');
+    imageTray.prepend(grabCanvas(imageWidth, transparency, backgroundColor, canvasData));
+    imageTray.scrollLeft = 0;
 }
 // Draw the grid
 function redrawGrid(row, column) {
@@ -147,7 +152,7 @@ function switchColor(e) {
 }
 
 // Save Image
-function grabCanvas(imageWidth, transparency, backgroundColor) {
+function grabCanvas(imageWidth, transparency, backgroundColor, data) {
     subCanvasID++;
     let savedImage = document.createElement('canvas');
     savedImage.height = imageWidth;
@@ -156,9 +161,7 @@ function grabCanvas(imageWidth, transparency, backgroundColor) {
     savedImage.id = 'image'+subCanvasID;
     let savedImageContext = savedImage.getContext('2d');
     const cellDimensions = Math.ceil(imageWidth / NUM_COLS);
-    let tray = document.getElementById('imageTray');
-    tray.prepend(savedImage);
-    tray.scrollLeft = 0;
+    
 
     function colorScaledBox(box, color) {
         const { row, column } = box;
@@ -171,7 +174,7 @@ function grabCanvas(imageWidth, transparency, backgroundColor) {
     }
 
     //
-    for (let i = 0; i < canvasData.length; i++) {
+    for (let i = 0; i < data.length; i++) {
         let row = Math.floor(i / NUM_ROWS);
         let column = i % NUM_COLS;
         let color = canvasData[i];
@@ -183,6 +186,7 @@ function grabCanvas(imageWidth, transparency, backgroundColor) {
             }
         }
     }
+    return savedImage;
 }
 
 
@@ -243,7 +247,49 @@ function handleMouseUp(e) {
     clickAndDrag = false;
 }
 
+function loadImages(e) {
+    let saved = localStorage.getItem('sprites');
+    if (!saved) { return false; }
+    loadedImages = JSON.parse(saved);
 
+    let savedImages = document.getElementById('savedImages');
+    savedImages.innerHTML = ''; // delete saved images
+    loadedImages.images.map( (image, index) => {
+        let imageContainer = document.createElement('div');
+        imageContainer.id  = 'saved-image-' + index;
+        imageContainer.classList.add('image-container');
+        let closeBox = document.createElement('div');
+        closeBox.id = 'close-' + index;
+        closeBox.classList.add('close');
+        imageContainer.appendChild(closeBox);
+        let canvas = grabCanvas(128, true, null, image);
+        canvas.id = 'close-' + index;
+        imageContainer.appendChild(canvas);
+        savedImages.prepend(imageContainer);
+    });
+    savedImages.addEventListener('click', handleSavedPaneClick);
+    savedImages.style.display = 'flex';
+}
+
+function saveImage(e) {
+    let saved = localStorage.getItem('sprites');
+    if  (!saved) {
+        // Create a save object to copy canvas data to
+        let saveObject = JSON.stringify({
+            images: [canvasData]
+        });
+        localStorage.setItem('sprites', saveObject);
+    } else {
+        // retrieve the images from the existing sprites object in local storage and add the image being saved to it.
+        saved = JSON.parse(saved);
+        let newImages = saved.images.slice();
+        newImages.push(canvasData);
+        let saveObject = Object.assign({}, saved, { images: newImages });
+        localStorage.setItem('sprites', JSON.stringify(saveObject));
+
+    }
+    loadImages();
+}
 
 // Event Listeners
 function addListeners() {
@@ -258,6 +304,10 @@ function addListeners() {
 
     // Make these more dynamic
     document.getElementById('saveSprite').addEventListener('click', getUserImageParameters);
+    
+    // Probably won't be needed in final
+    document.getElementById('saveImage').addEventListener('click', saveImage);
+    document.getElementById('loadImages').addEventListener('click', loadImages);
 }
 
 // Iterates through the dirty indices and updates each x, y coord on the canvas with it's new color
@@ -277,7 +327,7 @@ function getCanvasAndContext() {
     ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     canvas.width = NUM_COLS * BOX_SIDE_LENGTH + 1; // +1 to display border;
-    canvas.height = NUM_ROWS * BOX_SIDE_LENGTH +1;
+    canvas.height = NUM_ROWS * BOX_SIDE_LENGTH + 1;
 }
 
 // Initializes the dditor

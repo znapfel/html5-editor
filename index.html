@@ -29,7 +29,8 @@
       </ul>
     </nav>
   </header>
-  <div class="editor-app">
+  <main class="editor-app">
+    <div id="savedImages"></div>
     <section class="sprite">
       <div class="sprite--bar">
         <h3>Sprite Editor</h3>
@@ -48,6 +49,8 @@
       <div class="sprite--controls">
           <div class="sprite--editor-controls">
             <button id="saveSprite">Save</button>
+            <button id="saveImage">Save To Local</button>
+            <button id="loadImages">Load from Local</button>
           </div>
           <div class="sprite--editor-controls">
             <input id="transparent" type="checkbox" checked>
@@ -71,7 +74,7 @@
       </div>
     </section>
 
-  </div>
+  </main>
   <script src="js/sprite-editor.js"></script>
 </body>
 
