@@ -19,32 +19,108 @@
 
 <body>
   <header>
-    <nav>
+    <nav class="main-nav">
       <ul>
-        <li><input class="header--editor-toggle" data-toggle="sprite-editor" name="sprite-editor" type="checkbox"><label for="sprite-editor">Sprites</label></li>
-        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
-        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
-        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
-        <li><input class="header--editor-toggle" type="checkbox"><label for=""></label></li>
+        <li><label for="game-editor"><input class="header--editor-toggle" data-toggle="game-editor" name="game-editor" type="checkbox">Game</label></li>
+        <li><label for="world-editor"><input class="header--editor-toggle" data-toggle="world-editor" name="world-editor" type="checkbox">World</label></li>
+        <li><label for="player-editor"><input class="header--editor-toggle" data-toggle="player-editor" name="player-editor" type="checkbox">Player</label></li>
+        <li><label for="character-editor"><input class="header--editor-toggle" data-toggle="character-editor" name="character-editor" type="checkbox">Characters</label></li>
+        <li><label for="encounter-editor"><input class="header--editor-toggle" data-toggle="encounter-editor" name="encounter-editor" type="checkbox">Encounters</label></li>
+        <li><label for="flag-editor"><input class="header--editor-toggle" data-toggle="flag-editor" name="flag-editor" type="checkbox">Flags</label></li>
+        <li><label for="ability-editor"><input class="header--editor-toggle" data-toggle="ability-editor" name="ability-editor" type="checkbox">Abilities</label></li>
       </ul>
     </nav>
   </header>
   <main class="editor-app">
-    <div id="savedImages"></div>
-    <section class="sprite">
-      <div class="sprite--bar">
-        <h3>Sprite Editor</h3>
-        <p>X</p>
+      <section class="game-editor" id="game-editor">
+          <div class="game--bar">
+            <h3>Game Details</h3>
+            <button class="close-editor" id="game-editor-close" data-toggle="game-editor">X</button>
+          </div>
+          <form action="post">
+            <label for="game-title">Title:<input class="editor-text-field" type="text" name="game-title"></label>
+            <label for="game-author">Author:<input class="editor-text-field" type="text" name="game-author"></label>
+            <label for="game-description">Description:<textarea class="editor-text-field" name="game-description" rows="5" cols="33"></textarea></label>
+            <input type="submit" value="Save">
+          </form>
+      </section>
+   <section class="world-editor" id="world-editor">
+    <!-- 
+      To Do Add in tiles specific classes, canvas and 
+       copy from world map editor
+
+    -->
+    <article class="world-editor--tiles-panel">
+
+    </article>  
+    <article class="world-editor--world-map-panel"> 
+      <div class="world--bar">
+          <h3>World Map</h3>
+          <nav class="submenu" id="world--submenu">
+            <ul>
+              <li>
+                <label><input type="radio" name="world-menu" id="world--tiles-menu">Tiles</label>
+              </li>
+              <li>
+                <label><input type="radio" name="world-menu" id="world--world-map">World Map</label>
+              </li>
+              <li>
+                <label><input type="radio" name="world-menu" id="world--maps">Maps</label>
+              </li>
+            </ul>
+          </nav>
+          <button class="close-editor" id="world-editor-close" data-toggle="world-editor">X</button>
       </div>
-      <div class="sprite--window">
+      <div class="world-map-editor--window">
+          <aside class="world-map-editor--tiles"></aside>
+          <div class="world-map-editor--editor">
+            <div class="world-map-editor-wrapper">
+              <canvas id='world-map--editor' class="sprite--canvas" width="640" height="640"></canvas>
+            </div>
+          </div>       
+      </div>
+      <div class="sprite--controls">
+            <div class="sprite--editor-controls">
+              <button id="saveSprite">Save</button>
+              <button id="saveImage">Save To Local</button>
+              <button id="loadImages">Load from Local</button>
+            </div>
+            <div class="sprite--editor-controls">
+              <input id="transparent" type="checkbox" checked>
+              <label>Transparent</labe>
+            </div>
+            <div class="sprite--editor-controls">
+              <select id="pxWidth" name="Sprite Width">
+                <option value="16">16x16</option>
+                <option value="32" selected>32x32</option>
+                <option value="64">64x64</option>
+                <option value="128" >128x128</option>
+              </select>
+            </div>          
+      </div>
+      <div class="player--editor-previews" id="imageTray"></div>
+    </article>
+    <!-- 
+      To Do Add in maps specific classes, canvas and palette. copy from world map editor
+
+    -->
+    <article class="world-editor--maps-panel">
+
+    </article>
+      
+   </section>
+    <section class="player-editor" id="player-editor">
+      <div class="player--bar">
+        <h3>Player Editor</h3>
+        <button class="close-editor" id="player-editor-close" data-toggle="player-editor">X</button>
+      </div>
+      <div class="player--window">
         <aside class="sprite--palette"></aside>
-        <div class="sprite--editor">
-          <div class="canvas-wrapper">
+        <div class="player--editor">
+          <div class="player-wrapper">
             <canvas id='editor' class="sprite--canvas" width="640" height="640"></canvas>
           </div>
-        
-        </div>
-        
+        </div>       
       </div>
       <div class="sprite--controls">
           <div class="sprite--editor-controls">
@@ -65,14 +141,10 @@
             </select>
           </div>          
         </div>
-        <div class="sprite--editor-previews" id="imageTray"></div>
+        <div class="player--editor-previews" id="imageTray"></div>
+        <div id="savedImages"></div>
     </section>
-    <section class="placeholder-editor">
-      <div class=placeholder--bar>
-        <h3>Sprite Editor</h3>
-        <p>X</p>
-      </div>
-    </section>
+    
 
   </main>
   <script src="js/sprite-editor.js"></script>

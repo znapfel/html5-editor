@@ -117,8 +117,8 @@ section {
   width: 100%;
 }
 
-
-.sprite {
+/*
+.sprite-editor {
 
  background-color: salmon;
 }
@@ -133,20 +133,20 @@ section {
   display: flex;
   justify-content: space-between;
 }
-
+*/
 .sprite--palette{
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
   border: 1px solid gray;
 }
-
+/*
 .sprite--editor {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 25px;
-}
+}*/
 
 
 .sprite--color-swatch {
@@ -155,19 +155,20 @@ section {
   min-height: 32px;
   border-radius: 3px;
 }
-
+/*
 .sprite--controls {
   display: flex;
   justify-content: space-around;
-}
+}*/
 
 @media only screen and (min-width: 48rem) {
+  /*
   .editor-app {
     display: flex;
    
    }
    
-   .sprite {
+   .sprite-editor {
     max-width: 24rem;
     background-color: salmon;
    }
@@ -199,7 +200,7 @@ section {
      padding: 25px;
    }
    
-   
+   */
    .sprite--color-swatch {
      margin: 2px;
      width: 32px;

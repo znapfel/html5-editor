@@ -1,4 +1,4 @@
-
+// Todo: convert into a class with constructor
 // Global reference to canvas and it's context
 let canvas;
 let subCanvasID = 0;
@@ -322,7 +322,9 @@ function drawData() {
 }
 
 // Initializes the Canvas for drawing.
+
 function getCanvasAndContext() {
+    // To Do initilize on load for all canvases via event listener
     canvas = document.getElementById('editor');
     ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
