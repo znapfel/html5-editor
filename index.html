@@ -31,28 +31,23 @@
       </ul>
     </nav>
   </header>
+ 
   <main class="editor-app">
-      <section class="game-editor" id="game-editor">
-          <div class="game--bar">
-            <h3>Game Details</h3>
-            <button class="close-editor" id="game-editor-close" data-toggle="game-editor">X</button>
-          </div>
-          <form action="post">
-            <label for="game-title">Title:<input class="editor-text-field" type="text" name="game-title"></label>
-            <label for="game-author">Author:<input class="editor-text-field" type="text" name="game-author"></label>
-            <label for="game-description">Description:<textarea class="editor-text-field" name="game-description" rows="5" cols="33"></textarea></label>
-            <input type="submit" value="Save">
-          </form>
-      </section>
-   <section class="world-editor" id="world-editor">
-    <!-- 
-      To Do Add in tiles specific classes, canvas and 
-       copy from world map editor
-
-    -->
-    <article class="world-editor--tiles-panel">
-
-    </article>  
+  <!-- GAME EDITOR WINDOW -->
+    <section class="game-editor" id="game-editor">
+        <div class="game--bar">
+          <h3>Game Details</h3>
+          <button class="close-editor" id="game-editor-close" data-toggle="game-editor">X</button>
+        </div>
+        <form action="post">
+          <label for="game-title">Title:<input class="editor-text-field" type="text" name="game-title"></label>
+          <label for="game-author">Author:<input class="editor-text-field" type="text" name="game-author"></label>
+          <label for="game-description">Description:<textarea class="editor-text-field" name="game-description" rows="5" cols="33"></textarea></label>
+          <input type="submit" value="Save">
+        </form>
+    </section>
+  <!-- WORLD EDITOR WINDOW -->
+  <section class="world-editor" id="world-editor">    
     <article class="world-editor--world-map-panel"> 
       <div class="world--bar">
           <h3>World Map</h3>
@@ -71,6 +66,49 @@
           </nav>
           <button class="close-editor" id="world-editor-close" data-toggle="world-editor">X</button>
       </div>
+      <article class="world-editor--layers-panel">
+        <label class="world-editor--layer-label">Current Map Layer
+        <select name="world-editor--layer-picker" id="layer-picker">
+          <option value="map-tiles">Map Tiles</option>
+          <option value="characters">Characters</option>
+          <option value="items">Items</option>
+          <option value="encounters">Encounters</option>
+        </select>
+        </label>
+      </article>
+      <article class="world-editor--tiles-panel">
+          <h4>Map Tiles</h4>
+          <div class="world-editor--tile">⛰</div>
+          <div class="world-editor--tile">🏜</div>
+          <div class="world-editor--tile">🏰</div>
+          <div class="world-editor--tile">🏘</div>
+          <div class="world-editor--tile">🌊</div>
+      </article>
+      <article class="world-editor--character-panel">
+          <h4>Characters</h4>
+          <div class="world-editor--character-tile">👩‍🌾</div>
+          <div class="world-editor--character-tile">💂</div>
+          <div class="world-editor--character-tile">🤴</div>
+          <div class="world-editor--character-tile">🧙</div>
+          <div class="world-editor--character-tile">🧝</div>
+      </article>
+      <article class="world-editor--items-panel">
+          <h4>Items</h4>
+          <div class="world-editor--tile">🗡️</div>
+          <div class="world-editor--tile">🛡️</div>
+          <div class="world-editor--tile">💍</div>
+          <div class="world-editor--tile">💎</div>
+          <div class="world-editor--tile">🗝</div>
+      </article>
+      <article class="world-editor--encounters-panel">
+          <h4>Encounters</h4>
+          <!--TODO Replace encounter color swatches with their own class different from sprite--color-swatch-->
+          <div class="sprite--color-swatch world-editor--encounter-swatch" style="background-color: #eaaf4d; opacity: 0.3;">1</div>
+          <div class="sprite--color-swatch world-editor--encounter-swatch" style="background-color: #e75952; opacity: 0.3;">2</div>
+          <div class="sprite--color-swatch world-editor--encounter-swatch" style="background-color: #44c55b; opacity: 0.3;">3</div>
+          <div class="sprite--color-swatch world-editor--encounter-swatch" style="background-color: #58aeee; opacity: 0.3;">4</div>
+      </article>
+        <div class="world-map-editor--window">
       <div class="world-map-editor--window">
           <aside class="world-map-editor--tiles"></aside>
           <div class="world-map-editor--editor">
@@ -107,8 +145,8 @@
     <article class="world-editor--maps-panel">
 
     </article>
-      
-   </section>
+    
+  </section>
     <section class="player-editor" id="player-editor">
       <div class="player--bar">
         <h3>Player Editor</h3>
