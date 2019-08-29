@@ -41,13 +41,16 @@ let canvasData = new Array(NUM_ROWS * NUM_COLS).fill(defaultColor);
 // Create Color Palette
 function populatePalette() {
     let palette = colorPalette;
-    let paletteArea = document.querySelector('.sprite--palette');
+    let paletteAreas = document.querySelectorAll('.sprite--palette');
     palette.forEach((color, index) => {
         let html = `
             <div class="sprite--color-swatch" id="${color}_${index}" data-hex="#${color}" style="background-color: #${color}">
             </div>
         `;
-        paletteArea.innerHTML += html;
+        paletteAreas.forEach(paletteArea => {
+            paletteArea.innerHTML += html;
+        })
+        
         //html.setAttribute("style", `background-color: ${color}`);
     });
     currentColorDiv = document.querySelector(`[data-hex="${currentColor}"]`);
@@ -294,8 +297,11 @@ function saveImage(e) {
 // Event Listeners
 function addListeners() {
     canvas.addEventListener('click', handleClick);
-    const palette = document.querySelector('.sprite--palette');
-    palette.addEventListener('click', switchColor);
+    const palettes = document.querySelectorAll('.sprite--palette');
+    palettes.forEach(palette => {
+        palette.addEventListener('click', switchColor); 
+    })
+    
 
     // Mouse Listeners
     canvas.addEventListener('mousemove', handleMouseMove);
